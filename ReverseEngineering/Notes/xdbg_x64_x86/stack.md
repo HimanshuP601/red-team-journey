@@ -34,3 +34,10 @@ The **call stack** is a vital structure that holds the state of active function 
    push rbp          ; Save old base pointer
    mov rbp, rsp      ; Set new base pointer to current stack top
    sub rsp, <size>   ; Allocate space for locals
+
+
+2. **Function epilogue**:
+   ```asm
+    mov rsp, rbp      ; Restore stack pointer
+    pop rbp           ; Restore old base pointer
+    ret               ; Return to caller
