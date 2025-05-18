@@ -1,7 +1,3 @@
-Here's a clean, polished, and professional version of your README content, formatted for GitHub Markdown with improved grammar, clarity, and structure:
-
----
-
 # x64dbg (xdbg) - Overview and Memory/Register Sections
 
 ## Introduction
@@ -99,6 +95,4 @@ The register section shows live updates of CPU registers as the program is debug
 
 Displays the current function call stack, showing call frames, local variables, and return addresses.
 
----
 
-Let me know if you'd like me to help generate an SVG diagram or any other visuals to embed here!
