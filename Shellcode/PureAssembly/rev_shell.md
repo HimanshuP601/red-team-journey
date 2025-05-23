@@ -1,5 +1,3 @@
----
-
 # 🐚 Reverse Shell: C to Assembly Notes
 
 ## 📌 Objective
@@ -39,7 +37,7 @@ int main() {
 
 ---
 
-## 🧾 Corrected Assembly (x86-64, Linux)
+## 🧾 Assembly (x86-64, Linux)
 
 ```nasm
 section .text
@@ -145,8 +143,6 @@ Top of stack →
 | **rdx**  | 3rd syscall argument             |
 | **rsp**  | Stack pointer                    |
 | **rbx**  | Temporary register for data prep |
-
----
 
 
 
