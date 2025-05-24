@@ -7,7 +7,9 @@ _start:
 		pop rsi 
 		xor rax , rax
 		mov al , 1
-		mov dil , 1
+		xor rdi , rdi 
+		inc rdi
+		xor rdx , rdx
 		mov dl , 7
 		syscall
 		

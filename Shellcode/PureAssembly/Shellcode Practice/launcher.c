@@ -3,10 +3,13 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
-unsigned char shellcode[] = 
+ unsigned char shellcode[] = 
   "\xeb\x17\x5e\x48\x31\xc0\xb0\x01\x40\xb7\x01\xb2\x07\x0f\x05\x48\x31\xc0\xb0\x3c\x48\x31\xff\x0f\x05\xe8\xe4\xff\xff\xff\x48\x65\x6c\x6c\x6f\x21\x0a";//64-bit shellcode
 
+
 int main() {
+
+    
     size_t size = sizeof(shellcode);
 
     // Allocate RWX memory using mmap

@@ -1,3 +1,4 @@
+
 # Reverse Shell Development & Syscall Debugging Notes
 
 ## 🛠️ Assembly to Executable
@@ -39,7 +40,7 @@ objdump -d shell_exe -M intel | grep "^ " | awk '
 {
   for(i=2;i<=NF;i++) {
     if ($i ~ /^[0-9a-fA-F]{2}$/)
-      printf "\\x%s", $i
+      printf "\x%s", $i
     else
       break
   }
@@ -99,3 +100,16 @@ nc -lvnp <port>
 
 ---
 
+## ⚙️ Compilation and Debugging Commands
+
+Compile C runner with execstack permission and without PIE or stack protector:
+
+```bash
+gcc -z execstack -no-pie -fno-stack-protector -o runner runner.c
+```
+
+Use `strace` to debug and find errors:
+
+```bash
+strace -f ./runner
+```
