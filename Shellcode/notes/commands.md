@@ -1,4 +1,3 @@
-
 # Reverse Shell Development & Syscall Debugging Notes
 
 ## 🛠️ Assembly to Executable
@@ -65,6 +64,31 @@ END { print "" }
 '
 ```
 
+### Chunked C-style Shellcode (16 bytes per line):
+
+```bash
+objdump -d -M intel shell_exe | grep "^ " | awk '
+{
+  for (i = 2; i <= NF; i++) {
+    if ($i ~ /^[0-9a-fA-F]{2}$/) {
+      bytes = bytes "\x" $i
+      count++
+      if (count == 16) {
+        print "\" bytes "\""
+        bytes = ""
+        count = 0
+      }
+    } else {
+      break
+    }
+  }
+}
+END {
+  if (bytes != "") print "\" bytes "\""
+}
+'
+```
+
 ---
 
 ## 🔬 Program Behavior Analysis
@@ -113,3 +137,4 @@ Use `strace` to debug and find errors:
 ```bash
 strace -f ./runner
 ```
+

