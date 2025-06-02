@@ -68,12 +68,17 @@ typedef struct _LIST_ENTRY {
 
 ### 4. Traversing Loaded DLLs
 
-To walk through the list of loaded DLLs:
+Updated traversal logic using `esi`:
 
 ```assembly
-mov eax, [eax]          ; First DLL (calc.exe)
-mov eax, [eax]          ; Second DLL (ntdll.dll)
-mov eax, [eax]          ; Third DLL (kernel32.dll)
+xor ecx, ecx
+mov eax, fs:[ecx + 0x30]  ; EAX = PEB
+mov eax, [eax + 0xc]      ; EAX = PEB->Ldr
+mov esi, [eax + 0x14]     ; ESI = PEB->Ldr.InMemOrder
+lodsd                     ; EAX = Second module
+xchg eax, esi             ; EAX = ESI, ESI = EAX
+lodsd                     ; EAX = Third(kernel32)
+mov ebx, [eax + 0x10]     ; EBX = Base address
 ```
 
 The loading order typically is:
