@@ -35,11 +35,11 @@ cat /usr/include/x86_64-linux-gnu/asm/unistd_64.h | grep execve
 ### C-style Shellcode Format:
 
 ```bash
-objdump -d shell_exe -M intel | grep "^ " | awk '
+objdump -d shell -M intel | grep "^ " | awk ' 
 {
   for(i=2;i<=NF;i++) {
     if ($i ~ /^[0-9a-fA-F]{2}$/)
-      printf "\x%s", $i
+      printf "\\x%s", $i
     else
       break
   }
@@ -85,6 +85,30 @@ objdump -d -M intel shell_exe | grep "^ " | awk '
 }
 END {
   if (bytes != "") print "\" bytes "\""
+}
+'
+```
+
+### Chunked C-style Shellcode (16 bytes per line):
+
+```bash
+objdump -d shell -M intel | grep "^ " | awk '
+{
+  for (i = 2; i <= NF; i++) {
+    if ($i ~ /^[0-9a-fA-F]{2}$/)
+      bytes = bytes "\\x" $i
+    else
+      break
+  }
+}
+END {
+  byte_count = length(bytes) / 4  # each \xNN is 4 chars
+  for (i = 0; i < byte_count; i += 16) {
+    line = ""
+    for (j = 0; j < 16 && (i + j) < byte_count; j++)
+      line = line substr(bytes, (i + j) * 4 + 1, 4)
+    print "\"" line "\""
+  }
 }
 '
 ```
