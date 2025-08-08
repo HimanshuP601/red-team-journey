@@ -1,2 +1,4 @@
+*.asm linguist-language=Assembly
+*.md linguist-documentation
 
 
